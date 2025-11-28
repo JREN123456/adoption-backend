@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+    --primary-color: #e09e50; /* Warm golden-brown */
+    --secondary-color: #3b3a3c; /* Dark text/footer background */
+    --text-dark: #333;
+    --section-padding: 60px 40px;
+}
+
+/* Global Reset & Font */
+* {
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Smooth Global Transitions --- */
+body, button, a, input, select, textarea, img, div {
+    transition: all 0.3s ease-in-out;
+}
+
+/* --- Subtle Page Fade-in Animation --- */
+body {
+    opacity: 0;
+    animation: fadeInBody 0.8s ease forwards;
+}
+@keyframes fadeInBody {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* --- Nav Link Active State Styling --- */
+/* --- Navigation Bar --- */
+nav {
+    display: flex;
+    justify-content: center;  /* Centers the nav links horizontally */
+    margin-right: 250px;
+    align-items: center;
+    gap: 20px; /* Optional: space between buttons */
+    padding: 10px;
+    background-color: white; /* or transparent if you want overlay effect */
+}
+
+/* --- Nav Links --- */
+.nav-link {
+    color: var(--secondary-color);
+    font-weight: 500;
+    text-decoration: none;
+    position: relative;
+    padding: 8px 12px;
+    transition: all 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* --- Active State --- */
+.nav-link.active {
+    font-weight: 600;
+    color: var(--primary-color) !important;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 3px;
+    transition: all 0.3s ease-in-out;
+}
+
+
+/* --- Hero Section Background --- */
+.hero-section {
+    background-image: url('dog.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 600px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    animation: fadeInOverlay 1s ease forwards;
+}
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.hero-content {
+    position: relative;
+    padding-left: 40px;
+    max-width: 550px;
+    color: white;
+    animation: slideInLeft 1s ease forwards;
+}
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.hero-content h1 strong {
+    color: var(--primary-color);
+    animation: glowText 2s ease-in-out infinite alternate;
+}
+@keyframes glowText {
+    from { text-shadow: 0 0 5px rgba(224, 158, 80, 0.4); }
+    to { text-shadow: 0 0 15px rgba(224, 158, 80, 0.8); }
+}
+
+/* --- Search Match Box --- */
+.search-match {
+    background-color: white;
+    color: var(--text-dark);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 25px;
+    transform: translateY(10px);
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+}
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Badge Icons --- */
+.badge-item .icon {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    transition: transform 0.3s ease;
+}
+.badge-item .icon:hover {
+    transform: rotate(10deg) scale(1.1);
+}
+
+/* --- Pet Cards --- */
+.pet-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.pet-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+.pet-card img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.pet-card:hover img {
+    transform: scale(1.05);
+}
+.availability {
+    background-color: #4CAF50;
+}
+.pet-card .view-details {
+    background-color: var(--primary-color);
+    color: white;
+    transition: all 0.3s ease;
+}
+.pet-card .view-details:hover {
+    background-color: #cc8b45;
+    transform: scale(1.05);
+}
+
+/* --- Filter Bar --- */
+.filter-bar {
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 10px;
+    animation: fadeUp 0.8s ease forwards;
+}
+.filter-bar select {
+    background-color: white;
+    border: 1px solid #ddd;
+}
+
+/* --- Detail Info Boxes --- */
+.detail-info-box {
+    background-color: #f8f8f8;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+.detail-info-box:hover {
+    background-color: #fff5e8;
+}
+
+/* --- Health Records --- */
+.health-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.health-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.health-card .icon-box {
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    display: inline-flex;
+    margin-bottom: 8px;
+}
+.health-card .icon-vaccine { background-color: #4CAF50; }
+.health-card .icon-checkup { background-color: #2196F3; }
+.health-card .icon-weight { background-color: #FF9800; }
+.health-card .icon-meds { background-color: #9C27B0; }
+.health-card .health-status {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4CAF50;
+}
+
+/* --- Buttons --- */
+.detail-actions button {
+    font-weight: 600;
+    padding: 12px 25px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.detail-actions button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* --- Health Detail Card --- */
+.health-detail-card {
+    border-left: 4px solid var(--primary-color);
+    animation: fadeUp 0.8s ease forwards;
+}
+
+/* --- Auth Gradient Button --- */
+.auth-button-gradient {
+    background: linear-gradient(180deg, #D29A5B 0%, #8F5B3A 100%);
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(175, 110, 50, 0.4);
+}
+.auth-button-gradient:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+    box-shadow: 0 6px 10px rgba(175, 110, 50, 0.6);
+}
+
+/* --- Input Focus --- */
+.auth-input:focus {
+    border-color: #D29A5B;
+    box-shadow: 0 0 0 1px #D29A5B, 0 0 5px rgba(210,154,91,0.5);
+}
+
+/* --- Date Input --- */
+input[type="date"] {
+    appearance: none;
+    line-height: normal;
+}
+
+/* --- Tabs --- */
+.tab-button {
+    padding: 0.75rem 1.5rem;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+    color: #6B7280;
+    transition: all 0.3s ease;
+    flex-grow: 1;
+    text-align: center;
+}
+.tab-button:hover:not(.active-tab) {
+    color: #9CA3AF;
+    transform: translateY(-2px);
+}
+.active-tab {
+    border-color: #D29A5B;
+    color: #8F5B3A;
+    font-weight: 700;
+}
