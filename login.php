@@ -1,60 +1,39 @@
 <?php
 session_start();
-require_once 'connection.php';
+require "connection.php";
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo 'invalid_method';
-    exit;
-}
+$email = $_POST["email"];
+$password = $_POST["password"];
 
-$email = trim($_POST['email'] ?? '');
-$password = $_POST['password'] ?? '';
-
-if (!$email || !$password) {
-    echo 'missing_fields';
-    exit;
-}
-
-$stmt = $conn->prepare("SELECT id, first_name, password, role FROM users WHERE email = ? LIMIT 1");
-if (!$stmt) {
-    echo 'prepare_error';
-    exit;
-}
-
-$stmt->bind_param('s', $email);
+$stmt = $conn->prepare("SELECT id, first_name, last_name, email, password, role FROM users WHERE email=? LIMIT 1");
+$stmt->bind_param("s", $email);
 $stmt->execute();
 $stmt->store_result();
 
 if ($stmt->num_rows === 0) {
-    $stmt->close();
-    echo 'no_user';
+    echo "invalid";
     exit;
 }
 
-$stmt->bind_result($id, $first_name, $hash, $role);
+$stmt->bind_result($id, $first, $last, $emailDB, $hash, $role);
 $stmt->fetch();
 
-if (password_verify($password, $hash)) {
-
-    // set session
-    $_SESSION['user_id'] = $id;
-    $_SESSION['user_name'] = $first_name;
-    $_SESSION['role'] = $role;
-
-    // ⭐ ADMIN REDIRECT
-    if ($role === 'admin') {
-        header("Location: index.php");
-        exit;
-    }
-
-    // ⭐ USER REDIRECT
-    header("Location: user.php");
+if (!password_verify($password, $hash)) {
+    echo "invalid";
     exit;
-
-} else {
-    echo 'wrong_password';
 }
 
-$stmt->close();
-$conn->close();
+// SUCCESS → create session
+$_SESSION['user_id'] = $id;
+$_SESSION['first_name'] = $first;
+$_SESSION['last_name'] = $last;
+$_SESSION['email'] = $emailDB;
+$_SESSION['role'] = $role;
+
+// output expected result
+if ($role === "admin") {
+    echo "admin";
+} else {
+    echo "user";
+}
 ?>

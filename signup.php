@@ -1,53 +1,39 @@
 <?php
-// signup.php
-require_once 'connection.php';
+require "connection.php";
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo 'invalid_method';
-    exit;
-}
+$first = $_POST["first_name"];
+$last = $_POST["last_name"];
+$birthday = $_POST["birthday"];
+$mobile = $_POST["mobile"];
+$address = $_POST["address"];
+$email = $_POST["email"];
+$password = $_POST["password"];
 
-// retrieve and basic-validate inputs
-$first = trim($_POST['first_name'] ?? '');
-$last  = trim($_POST['last_name'] ?? '');
-$birthday = trim($_POST['birthday'] ?? '');
-$mobile = trim($_POST['mobile'] ?? '');
-$address = trim($_POST['address'] ?? '');
-$email = trim($_POST['email'] ?? '');
-$password = $_POST['password'] ?? '';
-
-if (!$first || !$last || !$birthday || !$mobile || !$address || !$email || !$password) {
-    echo 'missing_fields';
-    exit;
-}
-
-// check for existing email
-$stmt = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
-$stmt->bind_param('s', $email);
+// check if email already exists
+$stmt = $conn->prepare("SELECT id FROM users WHERE email=?");
+$stmt->bind_param("s", $email);
 $stmt->execute();
 $stmt->store_result();
+
 if ($stmt->num_rows > 0) {
-    $stmt->close();
-    echo 'email_exists';
+    echo "email-taken";
     exit;
 }
+
 $stmt->close();
 
-// hash password
-$hash = password_hash($password, PASSWORD_DEFAULT);
+$hashed = password_hash($password, PASSWORD_DEFAULT);
 
-// insert user
-$insert = $conn->prepare("INSERT INTO users 
-(first_name, last_name, birthday, mobile, address, email, password, role) 
-VALUES (?, ?, ?, ?, ?, ?, ?, 'user')");
-$insert->bind_param('sssssss', $first, $last, $birthday, $mobile, $address, $email, $hash);
+$stmt = $conn->prepare("INSERT INTO users (first_name,last_name,birthday,mobile,address,email,password,role)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, 'user')");
+$stmt->bind_param("sssssss", $first, $last, $birthday, $mobile, $address, $email, $hashed);
 
-if ($insert->execute()) {
-    echo 'success';
+if ($stmt->execute()) {
+    echo "success";
 } else {
-    // for debugging: echo $insert->error;
-    echo 'error';
+    echo "failed";
 }
-$insert->close();
+
+$stmt->close();
 $conn->close();
 ?>
