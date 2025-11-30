@@ -16,7 +16,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>God's Home of Refuge - Every Pet Deserves a Loving Home</title>
+    <title>God's Home of Refuge</title>
 
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -127,7 +127,8 @@ if (isset($_SESSION['user_id'])) {
                 <header class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-semibold text-gray-700">Tell us about yourself</h3>
                     <button onclick="closeModal()" aria-label="Close" class="text-gray-400 hover:text-gray-600 transition duration-150">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" 
+                        stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </header>
 
@@ -260,7 +261,7 @@ function navigate(target) {
         <!-- 2. Hero Section -->
         <div class="hero-section">
             <div class="hero-content">
-                <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight mb-4 drop-shadow-lg">Every Pet Deserves a <strong>Loving Home</strong></h1>.
+                <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight mb-4 drop-shadow-lg">Every Pet Deserves a <strong>Loving Home</strong></h1>
                 <p class="text-lg mb-6 drop-shadow-md">Change your life with the perfect pet companion. Our intelligent matching system connects you with pets that fit your lifestyle, ensuring a long-lasting and loving relationship.</p>
 
                 <div class="search-match">
