@@ -44,28 +44,31 @@ if (isset($_SESSION['user_id'])) {
     <header class="navbar flex justify-between items-center px-6 py-3 shadow-md bg-white sticky top-0 z-10">
         <div class="logo font-extrabold text-xl" style="color: var(--secondary-color);">🐾 God's <span style="color: var(--primary-color);"> Home of Refuge </span></div>
         <nav class="flex items-center space-x-6">
-		 <ul class="flex space-x-6">
-            <a href="#" class="nav-link" data-target="home-page" onclick="navigate('home-page')">Home</a>
-            <a href="#" class="nav-link" data-target="about-page" onclick="navigate('about-page')">About</a>
-            <a href="#" class="nav-link" data-target="find-pets-page" onclick="navigate('find-pets-page'); applyFilters();">Find Pets</a>
-            <a href="#" class="nav-link" data-target="adopt-page" onclick="navigate('adopt-page')">Adopt</a>
-            <a href="#" class="nav-link" data-target="health-page" onclick="navigate('health-page')">Health Records</a>
-            <!-- UPDATED: Navigate to the new contact-page section -->
-            <a href="#" class="nav-link" data-target="contact-page" onclick="navigate('contact-page')">Contact</a>
-			
+            <ul class="flex space-x-6">
+                <a href="#" class="nav-link" data-target="home-page" onclick="navigate('home-page')">Home</a>
+                <a href="#" class="nav-link" data-target="about-page" onclick="navigate('about-page')">About</a>
+                <a href="#" class="nav-link" data-target="find-pets-page" onclick="navigate('find-pets-page'); applyFilters();">Find Pets</a>
+                <a href="#" class="nav-link" data-target="adopt-page" onclick="navigate('adopt-page')">Adopt</a>
+                <a href="#" class="nav-link" data-target="health-page" onclick="navigate('health-page')">Health Records</a>
+                <!-- UPDATED: Navigate to the new contact-page section -->
+                <a href="#" class="nav-link" data-target="contact-page" onclick="navigate('contact-page')">Contact</a>
+            </ul>
         </nav>
 
-        <div class="flex items-center space-x-4">
-            <?php if ($user_display): ?>
-                <div class="text-sm text-gray-700 mr-3">Hello, <span class="font-semibold"><?= htmlspecialchars($user_display) ?></span></div>
-                <a href="logout.php" class="text-sm font-medium text-white px-4 py-2 rounded-full shadow-md transition hover:bg-opacity-90" style="background-color: var(--primary-color);">
-                    Logout
-                </a>
-            <?php else: ?>
-                <button id="open-auth-btn" onclick="openModal()" class="text-sm font-medium text-white px-4 py-2 rounded-full shadow-md transition hover:bg-opacity-90" style="background-color: var(--primary-color);">
-                    Login / Sign Up
-                </button>
-            <?php endif; ?>
+        <div class="fixed top-4 right-4 z-10">
+        <?php if ($user_display): ?>
+            <div class="text-sm text-gray-700 mr-3">Hello, <span class="font-semibold"><?= htmlspecialchars($user_display) ?></span></div>
+            <a href="logout.php" class="text-sm font-medium text-white px-4 py-2 rounded-full shadow-md transition hover:bg-opacity-90" 
+            style="background-color: var(--primary-color);">
+                Logout
+            </a>
+        <?php else: ?>
+            <button id="open-auth-btn" onclick="openModal()" class="text-sm font-medium text-white px-4 py-2 rounded-full shadow-md transition hover:bg-opacity-90" 
+            style="background-color: var(--primary-color);">
+                Login / Sign Up
+            </button>
+        <?php endif; ?>
+            </div>
         </div>
     </header>
 
@@ -488,12 +491,22 @@ function navigate(target) {
 <!-- PART 3 START -->
 <!-- ADOPTION APPLICATION PAGE -->
 <section id="adopt-page" data-page class="py-16 px-4 hidden">
-        <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-            <h1 class="text-4xl font-extrabold text-center mb-2" style="color: var(--secondary-color);">Adoption Application</h1>
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+        <h1 class="text-4xl font-extrabold text-center mb-2" style="color: var(--secondary-color);">Adoption Application</h1>
+        
+        <?php if (!$user_display): ?>
+            <div class="text-center py-10">
+                <p class="text-xl text-red-500 font-semibold mb-4">You must be logged in to fill out the adoption form.</p>
+                <p class="text-gray-600 mb-6">Please log in or create an account to start your adoption application.</p>
+                <button onclick="openModal()" class="text-sm font-medium text-white px-6 py-3 rounded-full shadow-md transition hover:bg-opacity-90" 
+                    style="background-color: var(--primary-color);">
+                    Login / Sign Up
+                </button>
+            </div>
+        <?php else: ?>
             <p class="text-lg text-gray-600 text-center mb-10">Help us find the perfect match by telling us about yourself and your preferences.</p>
             
             <form id="adoption-form" class="space-y-6">
-                <!-- Personal Info -->
                 <h2 class="text-2xl font-semibold border-b pb-2 mb-4" style="color: var(--primary-color);">Personal Information</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" id="app-first-name" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500" placeholder="First Name *" required>
@@ -503,12 +516,10 @@ function navigate(target) {
                 </div>
                 <input type="text" id="app-address" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 w-full" placeholder="Full Address *" required>
                 
-                <!-- Pet Details (Optional - to be pre-filled) -->
                 <h2 class="text-2xl font-semibold border-b pb-2 mb-4 mt-8" style="color: var(--primary-color);">Pet Preference</h2>
                 <p id="pet-name-message" class="text-sm text-gray-500 hidden">You are applying for: <span class="font-bold" id="pre-filled-pet-name"></span></p>
                 <input type="text" id="app-pet-name" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 w-full" placeholder="Name of Pet You're Interested In (Optional)">
-
-                <!-- Experience Level -->
+                
                 <div class="space-y-3">
                     <label class="block font-medium text-gray-700">Experience Level *</label>
                     <div class="flex flex-wrap gap-6">
@@ -517,31 +528,36 @@ function navigate(target) {
                         <label class="inline-flex items-center"><input type="radio" name="experience" value="Very experienced" class="form-radio text-amber-500 h-4 w-4"><span class="ml-2">Very experienced</span></label>
                     </div>
                 </div>
-
-                <!-- Living Situation -->
+                
                 <div class="space-y-3">
                     <label class="block font-medium text-gray-700">Living Situation *</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="inline-flex items-center"><input type="checkbox" name="situation" value="yard" class="form-checkbox rounded text-amber-500 h-4 w-4"><span class="ml-2">I have a yard</span></label>
-                        <label class="inline-flex items-center"><input type="checkbox" name="situation" value="other-pets" class="form-checkbox rounded text-amber-500 h-4 w-4"><span class="ml-2">I have other pets</span></label>
-                        <label class="inline-flex items-center"><input type="checkbox" name="situation" value="children" class="form-checkbox rounded text-amber-500 h-4 w-4"><span class="ml-2">I have children in the home</span></label>
-                        <label class="inline-flex items-center"><input type="checkbox" name="situation" value="rent" class="form-checkbox rounded text-amber-500 h-4 w-4"><span class="ml-2">I rent my home</span></label>
+                    <div class="flex flex-wrap gap-6">
+                        <label class="inline-flex items-center"><input type="radio" name="housing" value="House with yard" class="form-radio text-amber-500 h-4 w-4" required><span class="ml-2">House with yard</span></label>
+                        <label class="inline-flex items-center"><input type="radio" name="housing" value="Apartment/Condo" class="form-radio text-amber-500 h-4 w-4"><span class="ml-2">Apartment/Condo</span></label>
+                        <label class="inline-flex items-center"><input type="radio" name="housing" value="Other" class="form-radio text-amber-500 h-4 w-4"><span class="ml-2">Other</span></label>
                     </div>
                 </div>
-                
-                <!-- Essay/Motivation -->
-                <div>
-                    <label for="app-motivation" class="block font-medium text-gray-700 mb-2">Tell us why you want to adopt a pet *</label>
-                    <textarea id="app-motivation" rows="4" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 w-full" placeholder="Share your motivation and what you are looking for in a companion pet..." required></textarea>
-                    <p class="text-xs text-gray-500 text-right">Max 500 characters</p>
+
+                <div class="space-y-3">
+                    <label class="block font-medium text-gray-700">Do you currently own any other pets? *</label>
+                    <div class="flex flex-wrap gap-6">
+                        <label class="inline-flex items-center"><input type="radio" name="other-pets" value="Yes" class="form-radio text-amber-500 h-4 w-4" required><span class="ml-2">Yes</span></label>
+                        <label class="inline-flex items-center"><input type="radio" name="other-pets" value="No" class="form-radio text-amber-500 h-4 w-4"><span class="ml-2">No</span></label>
+                    </div>
                 </div>
 
-                <button type="submit" class="w-full py-3 rounded-lg font-semibold text-white shadow-lg transition hover:bg-amber-700" style="background-color: var(--primary-color);">
+                <div>
+                    <label for="app-reason" class="block text-sm font-medium text-gray-700 mb-1">Why do you want to adopt a pet? *</label>
+                    <textarea id="app-reason" rows="4" class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 w-full" placeholder="Tell us about your home, family, and why this pet is right for you." required></textarea>
+                </div>
+
+                <button type="submit" class="text-white font-semibold w-full py-3 rounded-lg mt-6 shadow-md transition hover:bg-opacity-90" style="background-color: var(--primary-color);">
                     Submit Application
                 </button>
             </form>
-        </div>
-    </section>
+        <?php endif; ?>
+    </div>
+</section>
 
 
 

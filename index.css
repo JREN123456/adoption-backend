@@ -33,7 +33,7 @@ body {
 nav {
     display: flex;
     justify-content: center;  /* Centers the nav links horizontally */
-    margin-right: 500px;
+    margin-right: 250px;
     align-items: center;
     gap: 20px; /* Optional: space between buttons */
     padding: 10px;
@@ -48,6 +48,7 @@ nav {
     position: relative;
     padding: 8px 12px;
     transition: all 0.3s ease-in-out;
+    display: flex;
 }
 
 .nav-link:hover {
