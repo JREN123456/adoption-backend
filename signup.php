@@ -30,8 +30,6 @@ $stmt->bind_param("sssssss", $first, $last, $birthday, $mobile, $address, $email
 
 if ($stmt->execute()) {
     echo "success";
-} else {
-    echo "failed";
 }
 
 $stmt->close();

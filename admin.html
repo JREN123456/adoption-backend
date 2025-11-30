@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard — Pets (Orange / White)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+ <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+:root{
+  --accent-from: #f97316; /* orange */
+  --accent-to: #ffffff;   /* white */
+  --glass-bg: rgba(255,255,255,0.6);
+  --glass-border: rgba(255,255,255,0.6);
+  --card-shadow: 0 6px 18px rgba(15,23,42,0.06);
+}
+html,body{height:100%}
+body {
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, rgba(247,148,29,0.06) 0%, rgba(255,255,255,0.02) 100%);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  color:#0f172a;
+}
+
+/* Glass header */
+.glass {
+  background: linear-gradient(90deg, rgba(255,255,255,0.75), rgba(255,255,255,0.55));
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+/* Modal */
+.modal-backdrop {
+  background: rgba(2,6,23,0.6);
+  backdrop-filter: blur(4px);
+}
+
+/* small utility for gradient accent */
+.accent-btn {
+  background: linear-gradient(90deg, var(--accent-from), #ff7a3a);
+}
+
+/* card */
+.glass-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75));
+  box-shadow: var(--card-shadow);
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+/* file preview image */
+.preview-img { object-fit: cover; width:100%; height:100%; border-radius:9999px; }
+
+/* make small icon buttons consistent */
+.icon-btn { width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; }
+
+/* custom scrollbar for big content */
+.content-area::-webkit-scrollbar { width: 10px; }
+.content-area::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.08); border-radius: 8px; }
+.content-area::-webkit-scrollbar-track { background: transparent; }
+ </style>
+
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <header class="sticky top-4 z-30 px-6">
+    <div class="mx-auto max-w-7xl">
+      <div class="glass shadow-lg rounded-2xl p-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="rounded-lg p-2" style="background:linear-gradient(135deg,var(--accent-from),#ff8a4b);">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L20 6V12C20 17 16 21 12 22C8 21 4 17 4 12V6L12 2Z" fill="#fff"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-xl font-bold">God's Home — Admin</div>
+            <div class="text-xs text-slate-600">Manage pets, adopters, health records</div>
+          </div>
+        </div>
+
+        <nav class="flex items-center gap-3">
+          <button onclick="showSection('dashboard')" class="nav-item px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:text-white hover:bg-amber-400/20">Dashboard</button>
+          <button onclick="showSection('pet-management')" class="nav-item px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:text-white hover:bg-amber-400/20">Pets</button>
+          <button onclick="showSection('adoption-management')" class="nav-item px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:text-white hover:bg-amber-400/20">Adoptions</button>
+          <button onclick="showSection('health-records')" class="nav-item px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:text-white hover:bg-amber-400/20">Health</button>
+          <button onclick="showSection('user-management')" class="nav-item px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:text-white hover:bg-amber-400/20">Users</button>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <button 
+            onclick="logout()" 
+            class="px-3 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition">
+            Logout
+          </button>
+        
+          <div class="rounded-lg p-2 icon-btn" title="Notifications">
+            <i data-lucide="bell"></i>
+          </div>
+        
+          <div class="rounded-full w-10 h-10 bg-orange-100 flex items-center justify-center text-orange-600 font-semibold">A</div>
+        </div>
+        
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 mt-8 mb-12">
+    <div class="mx-auto max-w-7xl px-6 content-area">
+
+      <section id="dashboard" class="space-y-6">
+        <div class="flex items-center justify-between gap-4">
+          <h1 class="text-2xl font-extrabold">System Dashboard</h1>
+          <div class="flex items-center gap-3">
+            <input id="global-search" type="search" placeholder="Search pets, users, adoptions..." class="px-3 py-2 rounded-lg border border-slate-200" oninput="renderAllVisible()" />
+            <button onclick="downloadSnapshot()" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold shadow-sm">Export</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-card p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-slate-500">Total Pets</div>
+                <div id="metric-total-pets" class="text-2xl font-bold">0</div>
+              </div>
+              <div class="rounded-lg p-2" style="background:linear-gradient(90deg,var(--accent-from),#ff8a4b);">
+                <i data-lucide="paw" class="text-white"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-slate-500">Pending Adoptions</div>
+                <div id="metric-pending" class="text-2xl font-bold">0</div>
+              </div>
+              <div class="rounded-lg p-2" style="background:linear-gradient(90deg,#f59e0b,#ff8a4b);">
+                <i data-lucide="file-text" class="text-white"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-slate-500">Available for Adoption</div>
+                <div id="metric-available" class="text-2xl font-bold">0</div>
+              </div>
+              <div class="rounded-lg p-2" style="background:linear-gradient(90deg,#ffb085,#ffd8c2);">
+                <i data-lucide="heart" class="text-white"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-3">
+          <div class="glass-card p-4">
+            <h3 class="font-semibold mb-3">Recent Activity</h3>
+            <ul id="recent-activity" class="space-y-2 text-sm text-slate-700"></ul>
+          </div>
+
+          <div class="glass-card p-4">
+            <h3 class="font-semibold mb-3">System Alerts</h3>
+            <ul id="system-alerts" class="space-y-2 text-sm text-slate-700"></ul>
+          </div>
+
+          <div class="glass-card p-4">
+            <h3 class="font-semibold mb-3">Quick Actions</h3>
+            <div class="flex flex-col gap-3">
+              <button class="px-3 py-2 rounded-lg accent-btn text-white font-semibold" onclick="showSection('pet-management')">Add Pet</button>
+              <button class="px-3 py-2 rounded-lg border border-amber-300 text-amber-600 font-semibold" onclick="showSection('adoption-management')">Process Adoptions</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pet-management" class="hidden space-y-6">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-2xl font-extrabold">Pet Management</h2>
+          <div class="flex items-center gap-2">
+            <input id="pet-search" type="search" placeholder="Search pets..." class="px-3 py-2 rounded-lg border border-slate-200" oninput="renderPetList()" />
+            <button onclick="openAddPetModal()" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">Add New Pet</button>
+          </div>
+        </div>
+
+        <div id="pet-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </section>
+
+      <section id="adoption-management" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-extrabold">Adoption Requests</h2>
+          <div class="flex items-center gap-2">
+            <input id="adoption-search" type="search" placeholder="Search requests..." class="px-3 py-2 rounded-lg border border-slate-200" oninput="renderAdoptionRequests()" />
+            <button onclick="openCreateAdoptionModal()" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">New Request</button>
+          </div>
+        </div>
+
+        <div id="adoption-requests" class="space-y-4"></div>
+      </section>
+
+      <section id="health-records" class="hidden space-y-6">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-2xl font-extrabold">Health Records</h2>
+          <div class="flex items-center gap-3">
+            <select id="health-pet-select" class="px-3 py-2 rounded-lg border border-slate-200"></select>
+            <button id="view-records-btn" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold" onclick="viewPetHealthRecords()" disabled>View Records</button>
+          </div>
+        </div>
+
+        <div id="health-records-display" class="glass-card p-4">
+          <p class="text-slate-600 italic">Select a pet to view or log medical records.</p>
+        </div>
+      </section>
+
+      <section id="user-management" class="hidden space-y-6">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-2xl font-extrabold">Users / Adopters</h2>
+          <div class="flex items-center gap-2">
+            <input id="user-search" type="search" placeholder="Search users..." class="px-3 py-2 rounded-lg border border-slate-200" oninput="renderUserList()" />
+            <button onclick="openAddUserModal()" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">Add User</button>
+          </div>
+        </div>
+
+        <div id="user-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="modal-root" class="fixed inset-0 z-50 hidden items-center justify-center p-6 modal-backdrop">
+    <div id="modal-card" class="max-w-2xl w-full glass-card p-6 relative">
+      <button id="modal-close" class="absolute right-4 top-4 text-slate-600 hover:text-slate-900">
+        <i data-lucide="x"></i>
+      </button>
+      <div id="modal-title" class="text-xl font-bold mb-3"></div>
+      <div id="modal-body" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <script>/***** DATA LAYER (with optional localStorage) *****/
+const USE_LOCAL_STORAGE = true; // toggle persistence
+
+// default seed data
+const seedPets = [
+  { id: 1, name: "Sparky", species: "Dog", age: 3, status: "Available", photo: null, records: [] },
+  { id: 2, name: "Whiskers", species: "Cat", age: 5, status: "Adopted", photo: null, records: [] },
+  { id: 3, name: "Bunny", species: "Rabbit", age: 1, status: "Available", photo: null, records: [] }
+];
+const seedUsers = [
+  { id: 'u1', name: "Jane Doe", role: "Applicant", status: "Active", email: "jane@example.com" },
+  { id: 'u2', name: "John Smith", role: "Admin", status: "Active", email: "john@example.com" }
+];
+const seedAdoptions = [
+  { id: 101, petId: 1, petName: "Sparky", userId: 'u1', userName: "Jane Doe", status: "Pending", notes: "Has fenced yard." }
+];
+
+let MOCK_PETS = [];
+let MOCK_USERS = [];
+let MOCK_ADOPTIONS = [];
+let nextPetId = 1;
+let nextAdoptionId = 101;
+
+function loadData(){
+  if(USE_LOCAL_STORAGE && localStorage.getItem('adm_pets')){
+    try {
+      MOCK_PETS = JSON.parse(localStorage.getItem('adm_pets'));
+      MOCK_USERS = JSON.parse(localStorage.getItem('adm_users'));
+      MOCK_ADOPTIONS = JSON.parse(localStorage.getItem('adm_adoptions'));
+      nextPetId = parseInt(localStorage.getItem('adm_nextPetId')|| (MOCK_PETS.length+1));
+      nextAdoptionId = parseInt(localStorage.getItem('adm_nextAdoptionId') || 101);
+      return;
+    } catch(e){
+      console.warn('localStorage parse error, seeding defaults', e);
+    }
+  }
+  // seed
+  MOCK_PETS = seedPets.map(p => ({...p, records: p.records||[]}));
+  MOCK_USERS = seedUsers.slice();
+  MOCK_ADOPTIONS = seedAdoptions.slice();
+  nextPetId = MOCK_PETS.length + 1;
+  nextAdoptionId = MOCK_ADOPTIONS.length ? Math.max(...MOCK_ADOPTIONS.map(a=>a.id)) + 1 : 101;
+  saveData();
+}
+
+function saveData(){
+  if(!USE_LOCAL_STORAGE) return;
+  localStorage.setItem('adm_pets', JSON.stringify(MOCK_PETS));
+  localStorage.setItem('adm_users', JSON.stringify(MOCK_USERS));
+  localStorage.setItem('adm_adoptions', JSON.stringify(MOCK_ADOPTIONS));
+  localStorage.setItem('adm_nextPetId', String(nextPetId));
+  localStorage.setItem('adm_nextAdoptionId', String(nextAdoptionId));
+}
+
+/***** UTILS *****/
+function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
+function el(tag, cls='', inner=''){ const d=document.createElement(tag); if(cls) d.className=cls; if(inner!==undefined) d.innerHTML=inner; return d; }
+
+// Exposed globally for use in HTML onclick handlers
+window.showModal = function(title, bodyHtml, opts={}) {
+  const root = document.getElementById('modal-root');
+  document.getElementById('modal-title').textContent = title;
+  const body = document.getElementById('modal-body');
+  body.innerHTML = '';
+  if(typeof bodyHtml === 'string') body.innerHTML = bodyHtml;
+  else if(bodyHtml instanceof HTMLElement) body.appendChild(bodyHtml);
+  root.classList.remove('hidden');
+  lucide.createIcons();
+}
+window.closeModal = function(){
+  document.getElementById('modal-root').classList.add('hidden');
+}
+
+function formatDate(ts = Date.now()){
+  const d = new Date(ts);
+  return d.toLocaleString();
+}
+
+/***** RENDER / UI LIFECYCLE *****/
+window.showSection = function(id){
+  document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
+  const sec = document.getElementById(id);
+  if(sec) sec.classList.remove('hidden');
+  // highlight nav
+  document.querySelectorAll('header nav .nav-item').forEach(b => b.classList.remove('bg-amber-500/10','text-amber-600'));
+  const btn = Array.from(document.querySelectorAll('header nav .nav-item')).find(b => b.textContent.trim().toLowerCase() === (id==='dashboard'?'dashboard': id.replace('-',' ')));
+  // best-effort highlight: fallback to simple approach
+  document.querySelectorAll('header nav .nav-item').forEach(b => { if(b.onclick && b.getAttribute('onclick').includes(id)) b.classList.add('bg-amber-500/10','text-amber-600'); });
+  // special render calls
+  if(id === 'dashboard') renderDashboard();
+  if(id === 'pet-management') renderPetList();
+  if(id === 'adoption-management') renderAdoptionRequests();
+  if(id === 'health-records') { renderHealthRecords(); renderHealthSelector(); }
+  if(id === 'user-management') renderUserList();
+}
+
+window.renderDashboard = function(){
+  document.getElementById('metric-total-pets').textContent = MOCK_PETS.length;
+  const pending = MOCK_ADOPTIONS.filter(a => a.status === 'Pending').length;
+  document.getElementById('metric-pending').textContent = pending;
+  const available = MOCK_PETS.filter(p => p.status === 'Available').length;
+  document.getElementById('metric-available').textContent = available;
+
+  // Recent activity (last 8 events)
+  const recent = [];
+  MOCK_ADOPTIONS.slice(-6).reverse().forEach(a => recent.push(`${formatDate()} — Application #${a.id} (${a.petName}) status: ${a.status}`));
+  // add pet additions
+  MOCK_PETS.slice(-3).reverse().forEach(p => recent.push(`${formatDate()} — Pet added: ${p.name}`));
+  const rEl = document.getElementById('recent-activity');
+  rEl.innerHTML = recent.length ? recent.map(t => `<li>${t}</li>`).join('') : '<li class="text-sm text-slate-500">No recent activity</li>';
+
+  // System alerts
+  const alerts = [];
+  if(MOCK_ADOPTIONS.some(a => a.status === 'Pending')) alerts.push('There are pending adoption requests that need review.');
+  if(MOCK_USERS.some(u => u.status === 'Deactivated')) alerts.push('Some user accounts are deactivated.');
+  const aEl = document.getElementById('system-alerts');
+  aEl.innerHTML = alerts.length ? alerts.map(x=>`<li>${x}</li>`).join('') : '<li class="text-sm text-slate-500">No critical alerts</li>';
+}
+
+/***** PET LIST UI *****/
+window.renderPetList = function(){
+  const container = document.getElementById('pet-list');
+  const q = (document.getElementById('pet-search').value||'').toLowerCase();
+  container.innerHTML = '';
+  const filtered = MOCK_PETS.filter(p => `${p.name} ${p.species}`.toLowerCase().includes(q) || String(p.id) === q);
+  if(filtered.length === 0){
+    container.innerHTML = `<div class="glass-card p-6 text-slate-600 italic">No pets found.</div>`;
+    return;
+  }
+  filtered.forEach(p => {
+    const card = el('div','glass-card p-4 flex gap-3 items-center');
+    const left = el('div','w-20 h-20 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center');
+    if(p.photo){
+      const img = el('img','preview-img');
+      img.src = p.photo;
+      left.appendChild(img);
+    } else {
+      left.innerHTML = `<i data-lucide="paw" class="text-amber-500"></i>`;
+    }
+    card.appendChild(left);
+    const mid = el('div','flex-1 min-w-0');
+    mid.innerHTML = `<div class="font-semibold">${p.name} <span class="text-xs text-slate-500">(${p.species})</span></div>
+                     <div class="text-sm text-slate-600">${p.age} yr(s) • <span class="px-2 py-0.5 rounded-full text-xs border ${p.status==='Available'?'border-green-300 text-green-700 bg-green-50':'border-slate-200 text-slate-700'}">${p.status}</span></div>`;
+    card.appendChild(mid);
+
+    const actions = el('div','flex flex-col gap-2 items-end');
+    const editBtn = el('button','icon-btn text-amber-600','<i data-lucide="edit-2"></i>');
+    editBtn.title = 'Edit Pet';
+    editBtn.onclick = () => openEditPetModal(p.id);
+    const healthBtn = el('button','icon-btn text-sky-600','<i data-lucide="stethoscope"></i>');
+    healthBtn.title = 'Log Health Record';
+    healthBtn.onclick = () => openLogHealthModal(p.id);
+    const adoptBtn = el('button','px-3 py-1 rounded-md bg-amber-100 text-amber-700 text-sm font-semibold','Create Request');
+    adoptBtn.onclick = () => openCreateAdoptionModal(p.id);
+    const delBtn = el('button','icon-btn text-red-600','<i data-lucide="trash-2"></i>');
+    delBtn.title = 'Delete Pet';
+    delBtn.onclick = () => confirmDeletePet(p.id);
+
+    actions.appendChild(editBtn);
+    actions.appendChild(healthBtn);
+    actions.appendChild(adoptBtn);
+    actions.appendChild(delBtn);
+    card.appendChild(actions);
+
+    container.appendChild(card);
+  });
+  lucide.createIcons();
+}
+
+/***** PET CRUD *****/
+window.openAddPetModal = function () {
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <div class="grid gap-3">
+
+      <input id="m-pet-name" class="px-3 py-2 border rounded-lg" placeholder="Pet name" />
+
+      <input id="m-pet-breed" class="px-3 py-2 border rounded-lg" placeholder="Breed" />
+
+      <div class="grid grid-cols-2 gap-2">
+        <input id="m-pet-age" type="number" class="px-3 py-2 border rounded-lg" placeholder="Years Old" min="0" />
+
+        <select id="m-pet-gender" class="px-3 py-2 border rounded-lg">
+          <option value="">Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <select id="m-pet-species" class="px-3 py-2 border rounded-lg">
+          <option>Dog</option><option>Cat</option><option>Other</option>
+        </select>
+
+        <select id="m-pet-size" class="px-3 py-2 border rounded-lg">
+          <option value="">Size</option>
+          <option>Small</option>
+          <option>Medium</option>
+          <option>Large</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <select id="m-pet-energy" class="px-3 py-2 border rounded-lg">
+          <option value="">Energy Level</option>
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
+
+        <select id="m-pet-kids" class="px-3 py-2 border rounded-lg">
+          <option value="">Good with kids?</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+
+      <select id="m-pet-training" class="px-3 py-2 border rounded-lg">
+        <option value="">Training Level</option>
+        <option>Basic</option>
+        <option>Intermediate</option>
+        <option>Advanced</option>
+      </select>
+
+      <!-- STATUS ADDED -->
+      <select id="m-pet-status" class="px-3 py-2 border rounded-lg">
+        <option value="Available">Available</option>
+        <option value="Reserved">Reserved</option>
+        <option value="Adopted">Adopted</option>
+      </select>
+
+      <textarea id="m-pet-description" class="px-3 py-2 border rounded-lg" placeholder="Description"></textarea>
+
+      <div>
+        <label class="text-sm text-slate-600">Photo (max 500KB)</label>
+        <input id="m-pet-photo" type="file" accept="image/*" class="mt-2" />
+        <div id="m-pet-photo-preview" class="mt-2 w-20 h-20 rounded-full overflow-hidden bg-slate-100"></div>
+      </div>
+
+      <div class="flex gap-2">
+        <button id="m-pet-save" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">Save Pet</button>
+        <button id="m-pet-cancel" class="px-3 py-2 rounded-lg border">Cancel</button>
+      </div>
+
+    </div>
+  `;
+
+  showModal('Add New Pet', body);
+
+  const fileInput = document.getElementById('m-pet-photo');
+  const preview = document.getElementById('m-pet-photo-preview');
+  let currentPhoto = null;
+
+  fileInput.onchange = async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (f.size > 500 * 1024) { alert('File too large (max 500KB)'); fileInput.value = ''; return; }
+    const data = await readFileAsDataURL(f);
+    currentPhoto = data;
+    preview.innerHTML = `<img src="${data}" class="w-full h-full object-cover">`;
+  };
+
+  document.getElementById('m-pet-cancel').onclick = closeModal;
+
+  document.getElementById('m-pet-save').onclick = () => {
+    const name = (document.getElementById('m-pet-name').value || '').trim();
+    const breed = (document.getElementById('m-pet-breed').value || '').trim();
+    const species = (document.getElementById('m-pet-species').value || '').trim();
+    const age = parseInt(document.getElementById('m-pet-age').value || 0);
+    const gender = document.getElementById('m-pet-gender').value;
+    const size = document.getElementById('m-pet-size').value;
+    const energy = document.getElementById('m-pet-energy').value;
+    const kids = document.getElementById('m-pet-kids').value;
+    const training = document.getElementById('m-pet-training').value;
+    const description = document.getElementById('m-pet-description').value;
+    const status = document.getElementById('m-pet-status').value;
+
+    if (!name || !species || !breed || !gender || !size || !energy || !kids || !training || !description || isNaN(age)) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    const newPet = {
+      id: nextPetId++,
+      name,
+      species,
+      breed,
+      gender,
+      size,
+      energy,
+      kids,
+      training,
+      description,
+      age,
+      status,
+      photo: currentPhoto,
+      records: []
+    };
+
+    MOCK_PETS.push(newPet);
+    saveData();
+    renderPetList();
+    renderDashboard();
+    closeModal();
+    showToast('Pet added successfully');
+  };
+}
+
+/***** EDIT PET *****/
+window.openEditPetModal = function (petId) {
+  const pet = MOCK_PETS.find(p => p.id === petId);
+  if (!pet) return;
+
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <div class="grid gap-3">
+
+      <input id="m-pet-name" class="px-3 py-2 border rounded-lg" value="${escapeHtml(pet.name)}" />
+
+      <input id="m-pet-breed" class="px-3 py-2 border rounded-lg" value="${escapeHtml(pet.breed || '')}" placeholder="Breed" />
+
+      <div class="grid grid-cols-2 gap-2">
+        <input id="m-pet-age" type="number" class="px-3 py-2 border rounded-lg" value="${pet.age}" min="0" />
+
+        <select id="m-pet-gender" class="px-3 py-2 border rounded-lg">
+          <option ${pet.gender === 'Male' ? 'selected' : ''}>Male</option>
+          <option ${pet.gender === 'Female' ? 'selected' : ''}>Female</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <select id="m-pet-species" class="px-3 py-2 border rounded-lg">
+          <option ${pet.species === 'Dog' ? 'selected' : ''}>Dog</option>
+          <option ${pet.species === 'Cat' ? 'selected' : ''}>Cat</option>
+          <option ${pet.species === 'Rabbit' ? 'selected' : ''}>Rabbit</option>
+          <option ${pet.species === 'Other' ? 'selected' : ''}>Other</option>
+        </select>
+
+        <select id="m-pet-size" class="px-3 py-2 border rounded-lg">
+          <option ${pet.size === 'Small' ? 'selected' : ''}>Small</option>
+          <option ${pet.size === 'Medium' ? 'selected' : ''}>Medium</option>
+          <option ${pet.size === 'Large' ? 'selected' : ''}>Large</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <select id="m-pet-energy" class="px-3 py-2 border rounded-lg">
+          <option ${pet.energy === 'Low' ? 'selected' : ''}>Low</option>
+          <option ${pet.energy === 'Medium' ? 'selected' : ''}>Medium</option>
+          <option ${pet.energy === 'High' ? 'selected' : ''}>High</option>
+        </select>
+
+        <select id="m-pet-kids" class="px-3 py-2 border rounded-lg">
+          <option ${pet.kids === 'Yes' ? 'selected' : ''}>Yes</option>
+          <option ${pet.kids === 'No' ? 'selected' : ''}>No</option>
+        </select>
+      </div>
+
+      <select id="m-pet-training" class="px-3 py-2 border rounded-lg">
+        <option ${pet.training === 'Basic' ? 'selected' : ''}>Basic</option>
+        <option ${pet.training === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
+        <option ${pet.training === 'Advanced' ? 'selected' : ''}>Advanced</option>
+      </select>
+
+      <!-- STATUS ADDED -->
+      <select id="m-pet-status" class="px-3 py-2 border rounded-lg">
+        <option value="Available" ${pet.status === 'Available' ? 'selected' : ''}>Available</option>
+        <option value="Reserved" ${pet.status === 'Reserved' ? 'selected' : ''}>Reserved</option>
+        <option value="Adopted" ${pet.status === 'Adopted' ? 'selected' : ''}>Adopted</option>
+      </select>
+
+      <textarea id="m-pet-description" class="px-3 py-2 border rounded-lg">${escapeHtml(pet.description || '')}</textarea>
+
+      <div>
+        <label class="text-sm text-slate-600">Photo (max 500KB)</label>
+        <input id="m-pet-photo" type="file" accept="image/*" class="mt-2" />
+        <div id="m-pet-photo-preview" class="mt-2 w-20 h-20 rounded-full overflow-hidden bg-slate-100">
+          ${pet.photo ? `<img src="${pet.photo}" class="w-full h-full object-cover">` : ''}
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button id="m-pet-save" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">Save Changes</button>
+        <button id="m-pet-cancel" class="px-3 py-2 rounded-lg border">Cancel</button>
+      </div>
+
+    </div>
+  `;
+
+  showModal('Edit Pet', body);
+
+  const fileInput = document.getElementById('m-pet-photo');
+  const preview = document.getElementById('m-pet-photo-preview');
+  let currentPhoto = pet.photo;
+
+  fileInput.onchange = async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (f.size > 500 * 1024) { alert('File too large (max 500KB)'); fileInput.value = ''; return; }
+    const data = await readFileAsDataURL(f);
+    currentPhoto = data;
+    preview.innerHTML = `<img src="${data}" class="w-full h-full object-cover">`;
+  };
+
+  document.getElementById('m-pet-cancel').onclick = closeModal;
+
+  document.getElementById('m-pet-save').onclick = () => {
+
+    pet.name = document.getElementById('m-pet-name').value.trim();
+    pet.breed = document.getElementById('m-pet-breed').value.trim();
+    pet.gender = document.getElementById('m-pet-gender').value;
+    pet.species = document.getElementById('m-pet-species').value;
+    pet.size = document.getElementById('m-pet-size').value;
+    pet.energy = document.getElementById('m-pet-energy').value;
+    pet.kids = document.getElementById('m-pet-kids').value;
+    pet.training = document.getElementById('m-pet-training').value;
+    pet.description = document.getElementById('m-pet-description').value.trim();
+    pet.age = parseInt(document.getElementById('m-pet-age').value || 0);
+    pet.photo = currentPhoto;
+    pet.status = document.getElementById('m-pet-status').value;
+
+    saveData();
+    renderPetList();
+    renderDashboard();
+    closeModal();
+    showToast('Pet updated');
+  };
+}
+
+/***** DELETE PET *****/
+window.confirmDeletePet = function (petId) {
+  const pet = MOCK_PETS.find(p => p.id === petId);
+  if (!pet) return;
+
+  showModal('Confirm Delete', `<div>
+    <p>Are you sure you want to permanently delete <strong>${escapeHtml(pet.name)}</strong>?</p>
+    <div class="mt-4 flex gap-2">
+      <button id="confirm-del" class="px-3 py-2 rounded-lg bg-red-600 text-white">Delete</button>
+      <button id="cancel-del" class="px-3 py-2 rounded-lg border">Cancel</button>
+    </div>
+  </div>`);
+
+  document.getElementById('cancel-del').onclick = closeModal;
+
+  document.getElementById('confirm-del').onclick = () => {
+    MOCK_PETS = MOCK_PETS.filter(p => p.id !== petId);
+    MOCK_ADOPTIONS = MOCK_ADOPTIONS.filter(a => a.petId !== petId);
+    saveData();
+    renderPetList();
+    renderAdoptionRequests();
+    renderDashboard();
+    closeModal();
+    showToast('Pet deleted');
+  };
+}
+
+
+
+/***** ADOPTION REQUESTS *****/
+window.renderAdoptionRequests = function() {
+  const container = document.getElementById('adoption-requests');
+  const q = (document.getElementById('adoption-search').value || '').toLowerCase();
+  container.innerHTML = '';
+
+  const filtered = MOCK_ADOPTIONS.filter(a =>
+    `${a.petName} ${a.userName} ${a.status}`.toLowerCase().includes(q) || String(a.id) === q
+  );
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="glass-card p-4 text-slate-600 italic">No requests found.</div>`;
+    return;
+  }
+
+  filtered.forEach(a => {
+    const card = el('div', 'glass-card p-4 flex justify-between items-start gap-4');
+    card.innerHTML = `<div class="flex-1">
+      <div class="font-semibold">Application #${a.id} — ${escapeHtml(a.petName)}</div>
+      <div class="text-sm text-slate-600">Applicant: ${escapeHtml(a.userName)} • ${escapeHtml(a.notes || '')}</div>
+      <div class="mt-2"><span class="px-2 py-0.5 rounded-full text-xs border ${a.status==='Pending'?'border-yellow-300 text-yellow-700':'border-green-300 text-green-700'}">${a.status}</span></div>
+    </div>`;
+
+    const actions = el('div', 'flex flex-col gap-2');
+
+    if (a.status === 'Pending') {
+      const approve = el('button', 'px-3 py-1 rounded-md bg-green-600 text-white text-sm', 'Approve');
+      approve.onclick = () => updateAdoptionStatus(a.id, 'Approved');
+
+      const reject = el('button', 'px-3 py-1 rounded-md bg-red-600 text-white text-sm', 'Reject');
+      reject.onclick = () => updateAdoptionStatus(a.id, 'Rejected');
+
+      const viewInfo = el('button', 'px-3 py-1 rounded-md bg-amber-500 text-white text-sm', 'View Info');
+      viewInfo.onclick = () => {
+        const user = MOCK_USERS.find(u => u.id === a.userId);
+        if (!user) {
+          alert('User info not found');
+          return;
+        }
+        const infoBody = document.createElement('div');
+        infoBody.innerHTML = `
+          <p><strong>Name:</strong> ${escapeHtml(user.name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(user.email || 'N/A')}</p>
+          <p><strong>Phone:</strong> ${escapeHtml(user.phone || 'N/A')}</p>
+          <p><strong>Notes:</strong> ${escapeHtml(a.notes || 'None')}</p>
+        `;
+        showModal(`Applicant Info - ${escapeHtml(user.name)}`, infoBody);
+      };
+
+      actions.appendChild(approve);
+      actions.appendChild(reject);
+      actions.appendChild(viewInfo);
+    } else {
+      const info = el('div', 'text-sm text-slate-600', `Status: ${a.status}`);
+      actions.appendChild(info);
+    }
+
+    card.appendChild(actions);
+    container.appendChild(card);
+  });
+
+  lucide.createIcons();
+};
+
+window.updateAdoptionStatus = function(appId, newStatus) {
+  const app = MOCK_ADOPTIONS.find(a => a.id === appId);
+  if (!app) return;
+
+  app.status = newStatus;
+
+  if (newStatus === 'Approved') {
+    const pet = MOCK_PETS.find(p => p.id === app.petId);
+    if (pet) pet.status = 'Adopted';
+  }
+
+  saveData();
+  renderAdoptionRequests();
+  renderPetList();
+  renderDashboard();
+
+  showToast(`Application #${appId} set to ${newStatus}`);
+};
+
+
+
+/***** USER MANAGEMENT *****/
+window.renderUserList = function(){
+  const container = document.getElementById('user-list');
+  const q = (document.getElementById('user-search').value||'').toLowerCase();
+  container.innerHTML = '';
+  const filtered = MOCK_USERS.filter(u => `${u.name} ${u.role} ${u.status} ${u.email||''}`.toLowerCase().includes(q));
+  if(filtered.length===0){ container.innerHTML = `<div class="glass-card p-4 text-slate-600 italic">No users found.</div>`; return; }
+  filtered.forEach(u => {
+    const card = el('div','glass-card p-4 flex items-center justify-between');
+    card.innerHTML = `<div>
+      <div class="font-semibold">${escapeHtml(u.name)} <span class="text-xs text-slate-500">(${escapeHtml(u.role)})</span></div>
+      <div class="text-sm text-slate-600">${escapeHtml(u.email||'')}</div>
+    </div>`;
+    const actions = el('div','flex gap-2 items-center');
+    const toggle = el('button','px-3 py-1 rounded-md border text-sm', u.status==='Active'?'Deactivate':'Activate');
+    toggle.onclick = () => {
+      if(u.status==='Active') u.status='Deactivated'; else u.status='Active';
+      saveData(); renderUserList(); renderDashboard(); showToast('User status updated');
+    };
+    const ban = el('button','px-3 py-1 rounded-md bg-red-600 text-white text-sm', u.status==='Banned'?'Unban':'Ban');
+    ban.onclick = () => {
+      u.status = (u.status==='Banned') ? 'Active' : 'Banned';
+      saveData(); renderUserList(); renderDashboard(); showToast('User ban updated');
+    };
+    const edit = el('button','icon-btn text-amber-600','<i data-lucide="edit-2"></i>');
+    edit.title='Edit User';
+    edit.onclick = () => openEditUserModal(u.id);
+    actions.appendChild(edit); actions.appendChild(toggle); actions.appendChild(ban);
+    card.appendChild(actions);
+    container.appendChild(card);
+  });
+  lucide.createIcons();
+}
+
+window.openAddUserModal = function(){
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <div class="grid gap-3">
+      <input id="m-user-name" class="px-3 py-2 border rounded-lg" placeholder="Full name" />
+      <input id="m-user-email" class="px-3 py-2 border rounded-lg" placeholder="Email" />
+      <select id="m-user-role" class="px-3 py-2 border rounded-lg"><option>Applicant</option><option>Admin</option></select>
+      <div class="flex gap-2">
+        <button id="m-user-save" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">Save User</button>
+        <button id="m-user-cancel" class="px-3 py-2 rounded-lg border">Cancel</button>
+      </div>
+    </div>
+  `;
+  showModal('Add User', body);
+  document.getElementById('m-user-cancel').onclick = closeModal;
+  document.getElementById('m-user-save').onclick = () => {
+    const name = (document.getElementById('m-user-name').value||'').trim();
+    const email = (document.getElementById('m-user-email').value||'').trim();
+    const role = document.getElementById('m-user-role').value;
+    if(!name || !email){ alert('Please add name and email'); return; }
+    const id = uid('u');
+    MOCK_USERS.push({ id, name, role, status:'Active', email });
+    saveData(); renderUserList(); closeModal(); showToast('User added');
+  };
+}
+
+window.openEditUserModal = function(userId){
+  const user = MOCK_USERS.find(u=>u.id===userId);
+  if(!user) return;
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <div class="grid gap-3">
+      <input id="m-user-name" class="px-3 py-2 border rounded-lg" value="${escapeHtml(user.name)}" />
+      <input id="m-user-email" class="px-3 py-2 border rounded-lg" value="${escapeHtml(user.email||'')}" />
+      <select id="m-user-role" class="px-3 py-2 border rounded-lg"><option ${user.role==='Applicant'?'selected':''}>Applicant</option><option ${user.role==='Admin'?'selected':''}>Admin</option></select>
+      <div class="flex gap-2">
+        <button id="m-user-save" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">Save</button>
+        <button id="m-user-cancel" class="px-3 py-2 rounded-lg border">Cancel</button>
+      </div>
+    </div>
+  `;
+  showModal('Edit User', body);
+  document.getElementById('m-user-cancel').onclick = closeModal;
+  document.getElementById('m-user-save').onclick = () => {
+    const name = (document.getElementById('m-user-name').value||'').trim();
+    const email = (document.getElementById('m-user-email').value||'').trim();
+    const role = document.getElementById('m-user-role').value;
+    if(!name || !email){ alert('Please add name and email'); return; }
+    user.name = name; user.email = email; user.role = role;
+    saveData(); renderUserList(); closeModal(); showToast('User updated');
+  };
+}
+
+/***** HEALTH RECORDS *****/
+window.renderHealthSelector = function(){
+  const sel = document.getElementById('health-pet-select');
+  sel.innerHTML = '<option value="">Select a pet...</option>';
+  MOCK_PETS.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = `${p.name} (${p.species}) — ${p.status}`;
+    sel.appendChild(opt);
+  });
+  sel.onchange = function(){ document.getElementById('view-records-btn').disabled = !this.value; };
+}
+
+window.viewPetHealthRecords = function(){
+  const pid = parseInt(document.getElementById('health-pet-select').value);
+  const pet = MOCK_PETS.find(p=>p.id===pid);
+  const display = document.getElementById('health-records-display');
+  if(!pet){ display.innerHTML = '<p class="text-slate-600 italic">Please select a pet.</p>'; return; }
+  const box = document.createElement('div');
+  box.innerHTML = `<div class="flex items-center justify-between">
+    <div>
+      <div class="font-bold text-lg">${escapeHtml(pet.name)}</div>
+      <div class="text-sm text-slate-600">${pet.species} • ${pet.age} yr(s)</div>
+    </div>
+    <div class="flex gap-2">
+      <button class="px-3 py-2 rounded-md border" onclick="openLogHealthModal(${pet.id})">Log Record</button>
+      <button class="px-3 py-2 rounded-md accent-btn text-white" onclick="openAddPetModal()">Edit Pet</button>
+    </div>
+  </div>
+  <div class="mt-4 space-y-3" id="records-list"></div>`;
+  display.innerHTML=''; display.appendChild(box);
+  renderRecordsForPet(pet.id);
+}
+
+function renderRecordsForPet(petId){
+  const pet = MOCK_PETS.find(p=>p.id===petId);
+  const list = document.getElementById('records-list');
+  list.innerHTML = '';
+  if(!pet || !pet.records || pet.records.length===0){
+    list.innerHTML = '<div class="text-slate-600 italic">No records found. Use "Log Record" to add one.</div>'; return;
+  }
+  pet.records.slice().reverse().forEach((r, idx) => {
+    const card = el('div','glass-card p-3');
+    card.innerHTML = `<div class="flex items-start justify-between">
+      <div>
+        <div class="font-semibold">${escapeHtml(r.type)} <span class="text-xs text-slate-500">${formatDate(r.ts)}</span></div>
+        <div class="text-sm text-slate-700 mt-1">${escapeHtml(r.details)}</div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <button class="icon-btn text-amber-600" title="Edit" onclick="openEditRecordModal(${pet.id}, ${r.id})"><i data-lucide="edit-2"></i></button>
+        <button class="icon-btn text-red-600" title="Delete" onclick="confirmDeleteRecord(${pet.id}, ${r.id})"><i data-lucide="trash-2"></i></button>
+      </div>
+    </div>`;
+    list.appendChild(card);
+  });
+  lucide.createIcons();
+}
+
+window.openLogHealthModal = function(petId){
+  const pet = MOCK_PETS.find(p=>p.id===petId);
+  if(!pet) return;
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <div class="grid gap-3">
+      <div class="text-sm text-slate-600">Adding record for <strong>${escapeHtml(pet.name)}</strong></div>
+      <input id="m-rec-type" class="px-3 py-2 border rounded-lg" placeholder="Type (Vaccination, Check-up, Treatment)" />
+      <textarea id="m-rec-details" class="px-3 py-2 border rounded-lg" placeholder="Details..."></textarea>
+      <div class="flex gap-2">
+        <button id="m-rec-save" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">Save Record</button>
+        <button id="m-rec-cancel" class="px-3 py-2 rounded-lg border">Cancel</button>
+      </div>
+    </div>
+  `;
+  showModal('Log Health Record', body);
+  document.getElementById('m-rec-cancel').onclick = closeModal;
+  document.getElementById('m-rec-save').onclick = () => {
+    const type = (document.getElementById('m-rec-type').value||'').trim();
+    const details = (document.getElementById('m-rec-details').value||'').trim();
+    if(!type || !details){ alert('Please fill type and details'); return; }
+    const rec = { id: Date.now(), ts: Date.now(), type, details };
+    pet.records = pet.records || []; pet.records.push(rec);
+    saveData();
+    closeModal();
+    showToast('Health record saved');
+    // if currently viewing that pet, re-render
+    const sel = document.getElementById('health-pet-select');
+    if(String(sel.value) === String(petId)) renderRecordsForPet(petId);
+  };
+}
+
+window.openEditRecordModal = function(petId, recId){
+  const pet = MOCK_PETS.find(p=>p.id===petId);
+  if(!pet) return;
+  const rec = pet.records.find(r=>r.id===recId);
+  if(!rec) return;
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <div class="grid gap-3">
+      <input id="m-rec-type" class="px-3 py-2 border rounded-lg" value="${escapeHtml(rec.type)}" />
+      <textarea id="m-rec-details" class="px-3 py-2 border rounded-lg">${escapeHtml(rec.details)}</textarea>
+      <div class="flex gap-2">
+        <button id="m-rec-save" class="px-3 py-2 rounded-lg accent-btn text-white font-semibold">Save</button>
+        <button id="m-rec-cancel" class="px-3 py-2 rounded-lg border">Cancel</button>
+      </div>
+    </div>
+  `;
+  showModal('Edit Health Record', body);
+  document.getElementById('m-rec-cancel').onclick = closeModal;
+  document.getElementById('m-rec-save').onclick = () => {
+    const type = (document.getElementById('m-rec-type').value||'').trim();
+    const details = (document.getElementById('m-rec-details').value||'').trim();
+    if(!type || !details){ alert('Please fill type and details'); return; }
+    rec.type = type; rec.details = details; rec.ts = Date.now();
+    saveData();
+    closeModal();
+    showToast('Record updated');
+    const sel = document.getElementById('health-pet-select');
+    if(String(sel.value) === String(petId)) renderRecordsForPet(petId);
+  };
+}
+
+window.confirmDeleteRecord = function(petId, recId){
+  const pet = MOCK_PETS.find(p=>p.id===petId);
+  if(!pet) return;
+  showModal('Delete Record', `<div>Delete this health record?<div class="mt-3 flex gap-2"><button id="del-rec" class="px-3 py-2 rounded-md bg-red-600 text-white">Delete</button><button id="cancel-rec" class="px-3 py-2 rounded-md border">Cancel</button></div></div>`);
+  document.getElementById('cancel-rec').onclick = closeModal;
+  document.getElementById('del-rec').onclick = () => {
+    pet.records = pet.records.filter(r=>r.id!==recId);
+    saveData(); closeModal();
+    showToast('Record deleted');
+    const sel = document.getElementById('health-pet-select');
+    if(String(sel.value) === String(petId)) renderRecordsForPet(petId);
+  };
+}
+
+/***** HELPERS / SMALL UX *****/
+function readFileAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg, timeout=2200){
+  let t = document.getElementById('global-toast');
+  if(!t){
+    t = document.createElement('div'); t.id='global-toast';
+    t.className='fixed right-6 bottom-6 bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(()=> t.style.opacity='0', timeout);
+}
+
+window.downloadSnapshot = function(){
+  const snapshot = { pets: MOCK_PETS, users: MOCK_USERS, adoptions: MOCK_ADOPTIONS };
+  const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'dashboard_snapshot.json'; a.click(); URL.revokeObjectURL(url);
+}
+
+window.renderAllVisible = function(){
+  const q = (document.getElementById('global-search').value||'').toLowerCase();
+  // quick render: highlight lists that include q
+  renderDashboard();
+  renderPetList();
+  renderUserList();
+  renderAdoptionRequests();
+}
+
+window.logout = function() {
+  if(confirm("Are you sure you want to logout?")) {
+    // OPTIONAL: Clear localStorage if your login system needs it
+    // localStorage.clear();
+
+    window.location.href = "index.php"; // Change to your login page
+  }
+}
+
+/***** INIT *****/
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  
+  // Set up modal listeners
+  document.getElementById('modal-close').onclick = closeModal;
+  document.getElementById('modal-root').onclick = (e) => { 
+    if(e.target.id === 'modal-root') closeModal(); 
+  };
+  
+  // initial renders
+  showSection('dashboard');
+  lucide.createIcons();
+  
+  // Connect some global keyboard shortcuts (optional)
+  window.addEventListener('keydown', (e)=>{
+    if(e.key==='/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+      e.preventDefault(); document.getElementById('global-search').focus();
+    }
+  });
+
+  // initial call ensures all lists are populated after data load
+  renderPetList();
+  renderUserList();
+  renderAdoptionRequests();
+  renderHealthSelector();
+  renderDashboard();
+});
+</script>
+</body>
+</html>

@@ -64,7 +64,7 @@ if (isset($_SESSION['user_id'])) {
             </a>
         <?php else: ?>
             <button id="open-auth-btn" onclick="openModal()" class="text-sm font-medium text-white px-4 py-2 rounded-full shadow-md transition hover:bg-opacity-90" 
-            style="background-color: var(--primary-color);">
+            style="background-color: var(--primary-color); margin-top: 10px;">
                 Login / Sign Up
             </button>
         <?php endif; ?>
@@ -740,9 +740,6 @@ function navigate(target) {
 
 <!-- PART 4 — FIXED, CLEAN, FULLY WORKING -->
 <script>
-/* -------------------------------------------------------------
-   SIMPLE PET DATA
-------------------------------------------------------------- */
       // --- PET DATA STRUCTURE ---
       const PETS_DATA = [
             { 
@@ -1293,114 +1290,6 @@ if (contactForm) {
 }
 
         };
-
-/* -------------------------------------------------------------
-   PAGE NAVIGATION
-------------------------------------------------------------- */
-function navigate(id) {
-  const pages = document.querySelectorAll("[data-page]");
-  pages.forEach(p => p.classList.add("hidden"));
-
-  const show = document.getElementById(id);
-  if (show) show.classList.remove("hidden");
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-/* -------------------------------------------------------------
-   RENDER PET CARDS
-------------------------------------------------------------- */
-function renderCards(list, containerID) {
-  const container = document.getElementById(containerID);
-  if (!container) return;
-
-  let html = "";
-  for (let pet of list) {
-    html += `
-      <div class="bg-white rounded-xl shadow-md overflow-hidden w-full max-w-sm">
-        <img src="${pet.img}" class="w-full h-44 object-cover">
-        <div class="p-4">
-          <h3 class="text-xl font-bold">${pet.name}</h3>
-          <p class="text-sm text-gray-500">${pet.breed} • ${pet.age}</p>
-          <p class="mt-3 text-gray-700">${pet.description.substring(0, 70)}...</p>
-          <div class="mt-4 flex gap-2">
-            <button onclick="openDetail(${pet.id})"
-              class="px-3 py-2 bg-orange-600 text-white rounded-lg">View</button>
-            <button onclick="startAdoptionProcess('${pet.name}')"
-              class="px-3 py-2 border rounded-lg">Adopt</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  container.innerHTML = html;
-}
-
-/* -------------------------------------------------------------
-   FILTER PETS (Find Pets Page)
-------------------------------------------------------------- */
-function applyFilters() {
-  const type = document.getElementById("filter-type").value;
-  const age = document.getElementById("filter-age").value;
-  const size = document.getElementById("filter-size").value;
-
-  const filtered = PETS_DATA.filter(pet => {
-    if (type !== "All Types" && pet.type !== type) return false;
-    if (size !== "All Sizes" && pet.size !== size) return false;
-    return true;
-  });
-
-  renderCards(filtered, "find-pets-grid");
-}
-
-/* -------------------------------------------------------------
-   OPEN PET DETAIL PAGE
-------------------------------------------------------------- */
-function openDetail(id) {
-  const pet = PETS_DATA.find(p => p.id === id);
-  if (!pet) return;
-
-  document.getElementById("detail-img").src = pet.img;
-  document.getElementById("detail-name").textContent = pet.name;
-  document.getElementById("detail-meta").textContent =
-    pet.breed + " • " + pet.age + " • " + pet.gender;
-  document.getElementById("detail-description").textContent = pet.description;
-
-  document.getElementById("detail-size-value").textContent = pet.size;
-  document.getElementById("detail-energy-value").textContent = pet.energy;
-  document.getElementById("detail-kids-value").textContent = pet.kids;
-  document.getElementById("adopt-pet-name").textContent = pet.name;
-
-  navigate("pet-detail-page");
-}
-
-/* -------------------------------------------------------------
-   HEALTH RECORDS PAGE
-------------------------------------------------------------- */
-function renderHealth() {
-  const box = document.getElementById("health-records-grid");
-  if (!box) return;
-
-  let html = "";
-  for (let pet of PETS_DATA) {
-    html += `
-      <div class="bg-white p-4 shadow rounded-lg">
-        <div class="flex gap-4">
-          <img src="${pet.img}" class="w-20 h-20 object-cover rounded-lg">
-          <div>
-            <h3 class="font-bold">${pet.name}</h3>
-            <p class="text-sm">${pet.breed} • ${pet.age}</p>
-            <p class="text-green-600 font-bold text-sm mt-2">Vaccines: Complete</p>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  box.innerHTML = html;
-}
-
 /* -------------------------------------------------------------
    LOGIN + SIGNUP AJAX
 ------------------------------------------------------------- */
@@ -1415,9 +1304,17 @@ function handleFormSubmit(e, type) {
     fetch("login.php", { method: "POST", body: fd })
       .then(r => r.text())
       .then(res => {
-        if (res === "user") window.location.reload();
-        else if (res === "admin") window.location.href = "admin/index.php";
-        else showMessage("Invalid login.");
+        if (res === "user") {
+          // redirect to user dashboard / user account
+          window.location.href = "user.html";
+        }
+        else if (res === "admin") {
+          // redirect to admin dashboard
+          window.location.href = "admin.html";
+        }
+        else {
+          showMessage("Invalid login.");
+        }
       });
   }
 
@@ -1448,6 +1345,7 @@ function handleFormSubmit(e, type) {
       });
   }
 }
+
 
 /* -------------------------------------------------------------
    ADOPTION + CONTACT (LOCAL ONLY)
